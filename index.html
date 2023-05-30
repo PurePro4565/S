@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Scaledrone Chat</title>
+  </head>
+  <body>
+    <div id="messages"></div>
+    <form>
+      <input type="text" id="message-input">
+      <button type="submit">Send</button>
+    </form>
+    <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
+    <script>
+      const swearWords = ["badword1", "badword2", "badword3"]; // add more swear words as needed
+
+      const chat = new Scaledrone('bcVq0NLz8VMxwKoF');
+
+      chat.on('open', () => {
+        console.log('Connected to Scaledrone');
+      });
+
+      chat.on('message', (message) => {
+        const text = message.data.text.toLowerCase();
+        if (swearWords.some(word => text.includes(word))) {
+          message.data.text = "****"; // replace swear words with asterisks
+        }
+        // display the censored message
+        const messageDiv = document.createElement('div');
+        messageDiv.textContent = `${message.data.sender}: ${message.data.text}`;
+        document.getElementById('messages').appendChild(messageDiv);
+      });
+
+      const form = document.querySelector('form');
+      const input = document.querySelector('input');
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const value = input.value;
+        chat.publish({
+          room: 'observable-room',
+          message: {text: value},
+        });
+        input.value = '';
+      });
+    </script>
+  </body>
+</html>
